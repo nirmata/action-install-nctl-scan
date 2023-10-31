@@ -23,3 +23,5 @@ jobs:
         uses: ./
       - name: Check install
         run: nctl version
+      - name: Check scan help
+        run: nctl scan --help

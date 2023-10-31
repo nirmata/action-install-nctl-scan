@@ -8,7 +8,7 @@ inputs:
   release:
     description: NCTL scan release version to be installed
     required: false
-    default: v3.3.7
+    default: 3.3.7
 runs:
   using: composite
   steps:
@@ -30,7 +30,7 @@ runs:
         set -e
 
         # Determine the download URL based on the release version
-        download_url="https://nirmata-downloads.s3.us-east-2.amazonaws.com/nctl/nctl_3.3.7/nctl_3.3.7_linux_64-bit.zip"
+        download_url="https://nirmata-downloads.s3.us-east-2.amazonaws.com/nctl/nctl_${{ inputs.release }}/nctl_${{ inputs.release }}_linux_64-bit.zip"
 
         log_info "Downloading nctl version '${{ inputs.release }}' from ${download_url}"
         curl -L -o nctl.zip $download_url
