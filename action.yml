@@ -10,6 +10,7 @@ inputs:
     required: false
     default: v3.3.7
 runs:
+  using: composite
   steps:
     - name: Download and Install nctl
       shell: bash
