@@ -1,0 +1,22 @@
+name: test-action
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  default:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+    permissions: {}
+    name: Install NCTL scan
+    steps:
+      - uses: actions/checkout@bac912d059a56715f689e1cdecbf6d31c3defaa6
+      - name: Install NCTL scan
+        uses: ./
+      - name: Check install
+        run: nctl version
