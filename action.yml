@@ -45,5 +45,6 @@ runs:
 
         log_info "Installation complete!"
     - name: Add nctl to PATH (Linux Only)
+      shell: bash
       if: ${{ runner.os == 'Linux' }}
       run: echo "/usr/local/bin" >> $GITHUB_PATH
