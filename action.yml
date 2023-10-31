@@ -1,0 +1,51 @@
+name: nctl-scan-installer
+description: Installs nctl scan
+author: go-nctl
+branding:
+  icon: package
+  color: blue
+inputs:
+  release:
+    description: NCTL scan release version to be installed
+    required: false
+    default: 3.3.7
+runs:
+  using: composite
+  steps:
+    - name: Download and Install nctl
+      shell: bash
+      run: |
+        #!/bin/bash
+
+        shopt -s expand_aliases
+
+        if [ -z "$NO_COLOR" ]; then
+          alias log_info="echo -e \"\033[1;32mINFO\033[0m:\""
+          alias log_error="echo -e \"\033[1;31mERROR\033[0m:\""
+        else
+          alias log_info="echo \"INFO:\""
+          alias log_error="echo \"ERROR:\""
+        fi
+
+        set -e
+
+        # Determine the download URL based on the release version
+        download_url="https://nirmata-downloads.s3.us-east-2.amazonaws.com/nctl/nctl_${{ inputs.release }}/nctl_${{ inputs.release }}_linux_64-bit.zip"
+
+        log_info "Downloading nctl version '${{ inputs.release }}' from ${download_url}"
+        curl -L -o nctl.zip $download_url
+
+        log_info "Unzipping nctl..."
+        unzip -q nctl.zip
+
+        log_info "Making nctl executable..."
+        chmod +x nctl
+
+        log_info "Moving nctl to /usr/local/bin (requires sudo)..."
+        sudo mv nctl /usr/local/bin/nctl
+
+        log_info "Installation complete!"
+    - name: Add nctl to PATH (Linux Only)
+      shell: bash
+      if: ${{ runner.os == 'Linux' }}
+      run: echo "/usr/local/bin" >> $GITHUB_PATH
