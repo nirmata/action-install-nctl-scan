@@ -1,12 +1,14 @@
 # action-install-nctl-scan GitHub Action
 
-This action enables you to install nctl.
+`nctl` is a CLI by Nirmata that can be used standalone to scan config files (Kubernetes manifests, IaC files, Dockerfile, JSON). 
+
+To learn more about `nctl`, refer to the [official documentation](https://docs.nirmata.io/nctl/).
 
 # Usage
 
 This action currently supports GitHub-provided Linux runner.
 
-Example
+Add the following entry to your Github workflow YAML file:
 
 ```yaml
 jobs:
@@ -15,15 +17,11 @@ jobs:
 
     permissions: {}
 
-    name: Install NCTL scan
+    name: Install nctl
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PAT }}
-          release: 3.3.6
-      - name: Install NCTL scan
-        uses: ./
-      - name: Check install
+      - name: Install nctl
+        uses: nirmata/action-install-nctl-scan@v0.0.2 # pin to the preferred release
+
+      - name: Check nctl version
         run: nctl version
 ```
