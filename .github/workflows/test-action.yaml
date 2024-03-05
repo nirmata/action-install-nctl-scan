@@ -16,9 +16,9 @@ jobs:
     name: Install NCTL scan
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
-        with:
-          token: ${{ secrets.PAT }}
+        uses: actions/checkout@v4
+        # with:
+        #   token: ${{ secrets.PAT }}
       - name: Install NCTL scan
         uses: ./
       - name: Check install
