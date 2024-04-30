@@ -8,7 +8,7 @@ inputs:
   release:
     description: NCTL scan release version to be installed
     required: false
-    default: 3.4.3
+    default: 4.0.1
 runs:
   using: composite
   steps:
