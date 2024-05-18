@@ -36,10 +36,10 @@ runs:
         curl -L -o nctl.zip $download_url
 
         log_info "Unzipping nctl..."
-        unzip -q nctl.zip
+        yes | unzip -o nctl.zip
 
         log_info "Making nctl executable..."
-        chmod +x nctl
+        chmod u+x nctl
 
         log_info "Moving nctl to /usr/local/bin (requires sudo)..."
         sudo mv nctl /usr/local/bin/nctl
