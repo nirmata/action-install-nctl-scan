@@ -36,7 +36,7 @@ runs:
         curl -L -o nctl.zip $download_url
 
         log_info "Unzipping nctl..."
-        yes | unzip -o nctl.zip
+        unzip -o nctl.zip
 
         log_info "Making nctl executable..."
         chmod u+x nctl
