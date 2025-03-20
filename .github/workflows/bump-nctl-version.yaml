@@ -17,7 +17,15 @@ jobs:
             - name: Fetch Latest NCTL Version
               id: get_version
               run: |
-                  LATEST_VERSION=$(curl -s https://api.github.com/repos/nirmata/go-nctl/releases/latest | jq -r '.tag_name')
+                  LATEST_VERSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                    https://api.github.com/repos/nirmata/go-nctl/releases/latest | \
+                    jq -r '.tag_name')
+
+                  if [ "$LATEST_VERSION" = "null" ] || [ -z "$LATEST_VERSION" ]; then
+                    echo "Error: Could not fetch the latest version"
+                    exit 1
+                  fi
+
                   echo "Latest version: $LATEST_VERSION"
                   echo "version=$LATEST_VERSION" >> $GITHUB_ENV
 
