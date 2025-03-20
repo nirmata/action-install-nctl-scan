@@ -1,0 +1,98 @@
+name: Bump NCTL Version
+
+on:
+    schedule:
+        - cron: "0 0 * * *"
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+  fetch-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Create GitHub App token for go-nctl repository
+        uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ vars.NCTL_VERSION_BUMPER_GITHUB_APP_ID }}
+          private-key: ${{ secrets.NCTL_VERSION_BUMPER_GITHUB_APP_PVT_KEY }}
+          owner: nirmata
+          repository: go-nctl
+          
+      - name: Fetch latest go-nctl release
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          NEW_VERSION=$(curl -s -H "Authorization: token $TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/nirmata/go-nctl/releases/latest | jq -r '.tag_name')
+  
+          if [[ -z "$NEW_VERSION" || "$NEW_VERSION" == "null" ]]; then
+            echo "Failed to fetch latest release version."
+            exit 1
+          fi
+  
+          # Remove 'v' from NEW_VERSION if present
+          NEW_VERSION="${NEW_VERSION#v}"
+  
+          echo "Latest release: $NEW_VERSION"
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+
+      - name: Read current version from action.yml
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(grep 'default:' action.yml | awk '{print $2}')
+          echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
+          echo "Current version in action.yml: $CURRENT_VERSION"
+
+      - name: Compare versions and decide whether to proceed
+        id: check-update
+        run: |
+          if [ "$NEW_VERSION" == "$CURRENT_VERSION" ]; then
+            echo "No update needed. Skipping PR creation."
+            echo "SKIP_UPDATE=true" >> $GITHUB_ENV
+          else
+            echo "Update needed: $CURRENT_VERSION -> $NEW_VERSION"
+            echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+          fi
+
+      - name: Create Branch (if update needed)
+        if: env.SKIP_UPDATE == 'false'
+        run: |
+            branch_name="bump-nctl-version-${NEW_VERSION}"
+            git checkout -b $branch_name
+            echo "BRANCH_NAME=$branch_name" >> $GITHUB_ENV
+
+      - name: Update action.yml
+        if: env.SKIP_UPDATE == 'false'
+        run: |
+            sed -i "s/default: .*/default: ${NEW_VERSION}/" action.yml
+
+      - name: Commit Changes
+        if: env.SKIP_UPDATE == 'false'
+        run: |
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add action.yml
+            git commit -m "Bump NCTL version to ${NEW_VERSION}"
+
+      - name: Push Changes
+        if: env.SKIP_UPDATE == 'false'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+            git push origin $BRANCH_NAME
+
+      - name: Create Pull Request
+        if: env.SKIP_UPDATE == 'false'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+            gh pr create \
+              --title "Bump NCTL version to ${NEW_VERSION}" \
+              --body "Automated PR to update NCTL version to ${NEW_VERSION}" \
+              --base main \
+              --head $BRANCH_NAME
