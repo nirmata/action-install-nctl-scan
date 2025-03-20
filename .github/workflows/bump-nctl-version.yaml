@@ -17,7 +17,7 @@ jobs:
             - name: Fetch Latest NCTL Version
               id: get_version
               run: |
-                  LATEST_VERSION=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+                  LATEST_VERSION=$(curl -s -H "Authorization: Bearer ${{ secrets.PAT }}" \
                     https://api.github.com/repos/nirmata/go-nctl/releases/latest | \
                     jq -r '.tag_name')
 
@@ -52,7 +52,7 @@ jobs:
 
             - name: Create Pull Request
               env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                  GITHUB_TOKEN: ${{ secrets.PAT }}
               run: |
                   gh pr create \
                     --title "Bump NCTL version to ${version}" \
