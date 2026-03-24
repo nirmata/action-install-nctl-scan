@@ -16,7 +16,7 @@ jobs:
     name: Install NCTL scan
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5  # v2
       - name: Install NCTL scan
         uses: ./
       - name: Check install
