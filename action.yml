@@ -29,8 +29,14 @@ runs:
 
         set -e
 
-        # Determine the download URL based on the release version
-        download_url="https://nirmata-downloads.s3.us-east-2.amazonaws.com/nctl/nctl_${{ inputs.release }}/nctl_${{ inputs.release }}_linux_386.zip"
+        # Determine the download URL based on the architecture and release version
+        ARCH=$(uname -m)
+        case "$ARCH" in
+          x86_64) ARCH="amd64" ;;
+          aarch64|arm64) ARCH="arm64" ;;
+          *) ARCH="386" ;;
+        esac
+        download_url="https://nirmata-downloads.s3.us-east-2.amazonaws.com/nctl/nctl_${{ inputs.release }}/nctl_${{ inputs.release }}_linux_${ARCH}.zip"
 
         log_info "Downloading nctl version '${{ inputs.release }}' from ${download_url}"
         curl -L -o nctl.zip $download_url
